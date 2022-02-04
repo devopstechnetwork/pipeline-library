@@ -3,7 +3,7 @@ def call(Map config) {
   def podYaml = libraryResource 'podtemplates/google-cloud-sdk.yml'
   def label = "cloud-sdk-${UUID.randomUUID().toString()}"
   def CLOUD_RUN_URL
-  podTemplate(name: 'cloud-sdk', label: label, yaml: podYaml, podRetention: never()) {
+  podTemplate(inheritFrom: 'default-jnlp', name: 'cloud-sdk', label: label, yaml: podYaml) {
     node(label) {
       container(name: 'gcp-sdk') {
         if (config.deployType == "gke") {
@@ -15,8 +15,8 @@ def call(Map config) {
           sh "gcloud run services describe ${config.serviceName} --platform kubernetes --kubeconfig ${config.kubeconfig} --format=json > run.json 2>&1"
         }
         else {
-          sh "gcloud run deploy ${config.serviceName} --image ${config.image} --allow-unauthenticated --region ${config.region} --platform managed --port 8080"
-          sh "gcloud run services describe ${config.serviceName} --region ${config.region} --platform managed --format=json > run.json 2>&1"
+          sh "gcloud run deploy ${config.serviceName} --image ${config.image} --allow-unauthenticated --region ${config.region} --platform managed --port 8080 --project core-workshop"
+          sh "gcloud run services describe ${config.serviceName} --region ${config.region} --platform managed --project core-workshop --format=json > run.json 2>&1"
         } 
       }
       //print detail description of deployed servce
@@ -35,5 +35,3 @@ def call(Map config) {
         gitHubComment(config)
       }
     }
-  }
-}
