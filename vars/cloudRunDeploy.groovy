@@ -35,3 +35,5 @@ def call(Map config) {
         gitHubComment(config)
       }
     }
+  }
+}
