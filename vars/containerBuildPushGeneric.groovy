@@ -1,11 +1,11 @@
 // vars/containerBuildPushGeneric.groovy
 def call(String imageName, String imageTag = env.BUILD_NUMBER, String gcpProject = "core-workshop", Closure body) {
   def dockerReg = "gcr.io/${gcpProject}"
-  def label = "kaniko-${repoOwner}"
+  def label = "kaniko-${UUID.randomUUID().toString()}"
   def podYaml = libraryResource 'podtemplates/kaniko.yml'
   def customBuildArg = ""
   def buildModeArg = ""
-  podTemplate(name: 'kaniko', label: label, yaml: podYaml, podRetention: always(), idleMinutes: 30) {
+  podTemplate(name: 'kaniko', label: label, yaml: podYaml, podRetention: never(), activeDeadlineSeconds:1) {
     node(label) {
       body()
       try {
